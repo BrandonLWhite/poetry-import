@@ -1,0 +1,12 @@
+bunch~=1.0
+pytest~=5.4
+pytest-cov~=2.8
+pytz~=2019.1; python_version<'3'
+lib-test~=2.1
+mock~=4.0
+coverage~=5.1
+requests-mock~=1.8.0
+moto
+httpretty
+backports.cached-property
+pydash
