@@ -1,13 +1,18 @@
+from pathlib import Path
+import contextlib
+import os
 import argparse
 import pkg_resources
 from packaging.markers import Marker
+from distutils.core import run_setup
+from distutils.dist import Distribution
 
 # Consider:
 #   Use a TOML reader/writer.
 #   Append to existing TOML file and section
 #   Overwrite/update existing entries.
-# Milestone 2: Read dev-/test_requirements.in/.txt and add to pyproject.toml dev deps.
 # Milestone 3: Import setup.py to generate initial pyproject.toml
+# Milestone 4: Auto-detect all requirements files.
 #
 def main():
     parser = argparse.ArgumentParser(
@@ -22,6 +27,11 @@ def main():
         translate_requirements(args.depfile, '[tool.poetry.dependencies]', outfile)
         outfile.write('\n')
         translate_requirements(args.devfile, '[tool.poetry.dev-dependencies]', outfile)
+
+    with working_directory('./tests/data/'):
+        distribution: Distribution = run_setup('setup.py')
+        print(distribution.metadata.get_name())
+        print(distribution.metadata.get_description())
 
 
 def translate_requirements(depfilename: str, section_name: str, outfile):
@@ -50,3 +60,14 @@ def get_toml_spec(requirement: pkg_resources.Requirement) -> str:
         else:
             print(f'Ignoring unsupportor environment marker "{marker_var}"')
     return f'"{spec}"'
+
+
+@contextlib.contextmanager
+def working_directory(path):
+    """Changes working directory and returns to previous on exit."""
+    prev_cwd = Path.cwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(prev_cwd)

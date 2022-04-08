@@ -16,7 +16,6 @@ requests~=2.9
 semver~=2.9
 simplejson~=3.17
 six~=1.15
-upside_model~=6.8
 marshmallow~=2.21
 foo>=0.6,<1
 baz
