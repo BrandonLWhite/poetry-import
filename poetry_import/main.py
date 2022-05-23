@@ -4,7 +4,6 @@
 # issues, avoid using distutils directly, ensure that setuptools is installed in the traditional way
 # (e.g. not an editable install), and/or make sure that setuptools is always imported before distutils.
 # import setuptools
-import os
 os.environ['SETUPTOOLS_USE_DISTUTILS']='stdlib'
 
 from pip._internal.req import parse_requirements
@@ -14,6 +13,7 @@ from pathlib import Path
 import contextlib
 import os
 import argparse
+import toml
 from packaging.markers import Marker
 from distutils.core import run_setup
 from distutils.dist import Distribution
@@ -22,7 +22,6 @@ from distutils.dist import Distribution
 #   Use a TOML reader/writer.
 #   Append to existing TOML file and section
 #   Overwrite/update existing entries.
-# Milestone 4: Import requirements.txt to generate poetry.lock
 # Milestone 5: Auto-detect all requirements files.
 #
 def main():
@@ -31,8 +30,6 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('input_path')
-    # parser.add_argument('depfile')
-    # parser.add_argument('devfile')
 
     args = parser.parse_args()
 
@@ -41,6 +38,8 @@ def main():
     devdepfile = filepath / 'dev-requirements.in'
     setupfile = filepath / 'setup.py'
     lockfile = filepath / 'requirements.txt'
+
+    private_repo = get_private_repo()
 
     with open(filepath / 'pyproject.toml', 'w') as outfile:
         def _writeline(line = ''):
@@ -52,9 +51,17 @@ def main():
             import_setup(setupfile, outfile)
             outfile.writeline()
 
+        if private_repo:
+            import_private_repo(outfile, private_repo)
+
         import_requirements(depfile, devdepfile, outfile)
         outfile.writeline()
+
         write_build_system(outfile)
+
+    if lockfile.exists():
+        with open(filepath / 'poetry.lock', 'w') as outfile:
+            import_lockfile(str(lockfile), private_repo, outfile)
 
 
 def import_setup(setupfile, outfile):
@@ -69,6 +76,33 @@ def import_setup(setupfile, outfile):
         outfile.writeline(f'repository = "{meta.url}"')
         email = meta.author_email or 'none@none.none'
         outfile.writeline(f'authors = ["{meta.author} <{email}>"]')
+
+
+def import_private_repo(outfile, repository):
+    repo_name, url = repository
+    print(f'Using private repository "{repo_name}" at {url}')
+    outfile.writeline('[[tool.poetry.source]]')
+    outfile.writeline(f'name = "{repo_name}"')
+    outfile.writeline(f'url = "{url}"')
+    outfile.writeline('default = true')
+    outfile.writeline()
+
+
+def get_private_repo():
+    poetry_config_file = Path.home() / '.config' / 'pypoetry' / 'config.toml'
+    if not poetry_config_file.exists():
+        return None
+
+    poetry_config = toml.load(poetry_config_file)
+    repositories = poetry_config.get('repositories')
+    if not repositories:
+        return None
+    repositories_items = list(repositories.items())
+    if not repositories_items:
+        return None
+
+    repository_item = repositories_items[0]
+    return (repository_item[0], repository_item[1].get('url'))
 
 
 def import_requirements(depfile, devdepfile, outfile):
@@ -113,6 +147,35 @@ def get_toml_spec(requirement: pkg_resources.Requirement) -> str:
         else:
             print(f'Ignoring unsupportor environment marker "{marker_var}"')
     return f'"{spec}"'
+
+
+def import_lockfile(lockfile, private_repo, outfile):
+    pip_reqs = (req.requirement for req in parse_requirements(lockfile, None))
+    reqs = list(pkg_resources.parse_requirements(pip_reqs))
+
+    packages = []
+
+    for req in reqs:
+        package = {
+            'name': req.project_name,
+            'version': req.specs[0][1],
+            'category': 'main',
+            'optional': False,
+            'python-versions': "*"
+        }
+        if private_repo:
+            package['source'] = {
+                'type': 'legacy',
+                'url': private_repo[1],
+                'reference': private_repo[0]
+            }
+        packages.append(package)
+
+    lockfile_dict = {
+        'package': packages
+    }
+
+    toml.dump(lockfile_dict, outfile)
 
 
 def write_build_system(outfile):
