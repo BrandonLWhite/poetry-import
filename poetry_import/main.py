@@ -4,6 +4,7 @@
 # issues, avoid using distutils directly, ensure that setuptools is installed in the traditional way
 # (e.g. not an editable install), and/or make sure that setuptools is always imported before distutils.
 # import setuptools
+import os
 os.environ['SETUPTOOLS_USE_DISTUTILS']='stdlib'
 
 from pip._internal.req import parse_requirements
@@ -11,7 +12,6 @@ import pkg_resources
 
 from pathlib import Path
 import contextlib
-import os
 import argparse
 import toml
 from packaging.markers import Marker
