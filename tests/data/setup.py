@@ -7,7 +7,7 @@ with open("requirements.txt") as infile:
 
 setup_options = dict(
     name='some-test-lib',
-    version='[SCM_VERSION]',
+    version='1.2.3',
     description='Description goes here.',
     long_description='Long description goes here.',
     author='Some Services, Inc',

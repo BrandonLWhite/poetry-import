@@ -9,6 +9,7 @@ poetry-import = "poetry_import.main:main"
 
 [tool.poetry.dependencies]
 python = "^3.9"
+pip = "^22.1.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
