@@ -1,3 +1,4 @@
+-c requirements.txt
 bunch~=1.0
 pytest~=5.4
 pytest-cov~=2.8

@@ -28,10 +28,16 @@ def main():
         outfile.write('\n')
         translate_requirements(args.devfile, '[tool.poetry.dev-dependencies]', outfile)
 
+    # TODO: If setup.py file exists.
     with working_directory('./tests/data/'):
         distribution: Distribution = run_setup('setup.py')
-        print(distribution.metadata.get_name())
-        print(distribution.metadata.get_description())
+        print(distribution.metadata.name)
+        print(distribution.metadata.description)
+        print(distribution.metadata.version)
+        print(distribution.metadata.author_email)
+        print(distribution.metadata.url)
+
+    # packages=find_packages(exclude=['tests*']),
 
 
 def translate_requirements(depfilename: str, section_name: str, outfile):
