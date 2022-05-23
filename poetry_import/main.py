@@ -172,7 +172,11 @@ def import_lockfile(lockfile, private_repo, outfile):
         packages.append(package)
 
     lockfile_dict = {
-        'package': packages
+        'package': packages,
+        'metadata': {
+            'lock-version': '1.1',
+            'files': { package['name']: {} for package in packages }
+        }
     }
 
     toml.dump(lockfile_dict, outfile)
