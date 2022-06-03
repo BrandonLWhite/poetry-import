@@ -11,6 +11,7 @@ from pip._internal.req import parse_requirements
 import pkg_resources
 
 from pathlib import Path
+from typing import List
 import contextlib
 import argparse
 import toml
@@ -33,15 +34,20 @@ def main():
 
     args = parser.parse_args()
 
-    filepath = Path(args.input_path)
-    depfile = filepath / 'requirements.in'
-    devdepfile = filepath / 'dev-requirements.in'
-    setupfile = filepath / 'setup.py'
-    lockfile = filepath / 'requirements.txt'
+    basepath = Path(args.input_path)
+    depfile = basepath / 'requirements.in'
+    devdepfile = determine_filepath(basepath, ['dev-requirements.in', 'test-requirements.txt', 'test_requirements.txt'])
+    setupfile = basepath / 'setup.py'
+    lockfile = basepath / 'requirements.txt'
+
+    if not depfile.exists() and lockfile.exists():
+        print(f'"{depfile.name}" does not exist. Assuming "{lockfile.name}" is the top-level dependency file.')
+        depfile = lockfile
+        lockfile = None
 
     private_repo = get_private_repo()
 
-    with open(filepath / 'pyproject.toml', 'w') as outfile:
+    with open(basepath / 'pyproject.toml', 'w') as outfile:
         def _writeline(line = ''):
             outfile.write(line)
             outfile.write('\n')
@@ -59,9 +65,17 @@ def main():
 
         write_build_system(outfile)
 
-    if lockfile.exists():
-        with open(filepath / 'poetry.lock', 'w') as outfile:
+    if lockfile and lockfile.exists():
+        with open(basepath / 'poetry.lock', 'w') as outfile:
             import_lockfile(str(lockfile), private_repo, outfile)
+
+
+def determine_filepath(basepath: Path, filenames: List[str]) -> Path:
+    for filename in filenames:
+        filepath = basepath / filename
+        if filepath.exists():
+            return filepath
+    return None
 
 
 def import_setup(setupfile, outfile):
