@@ -69,6 +69,12 @@ def main():
         with open(basepath / 'poetry.lock', 'w') as outfile:
             import_lockfile(str(lockfile), private_repo, outfile)
 
+    print('Operation complete!')
+    if lockfile:
+        print(f'Now run `poetry-lock --no-update` from {basepath}')
+    else:
+        print(f'Now run `poetry-lock` from {basepath}')
+
 
 def determine_filepath(basepath: Path, filenames: List[str]) -> Path:
     for filename in filenames:

@@ -11,6 +11,7 @@ poetry-import = "poetry_import.main:main"
 python = "^3.9"
 pip = "^22.1.1"
 toml = "^0.10.2"
+packaging = "^21.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
