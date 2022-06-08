@@ -12,6 +12,7 @@ import pkg_resources
 
 from pathlib import Path
 from typing import List
+import re
 import contextlib
 import argparse
 import toml
@@ -36,7 +37,11 @@ def main():
 
     basepath = Path(args.input_path)
     depfile = basepath / 'requirements.in'
-    devdepfile = determine_filepath(basepath, ['dev-requirements.in', 'test-requirements.txt', 'test_requirements.txt'])
+    devdepfile = determine_filepath(basepath, [
+        'dev-requirements.in',
+        'test_requirements.in',
+        'test-requirements.txt',
+        'test_requirements.txt'])
     setupfile = basepath / 'setup.py'
     lockfile = basepath / 'requirements.txt'
 
@@ -71,9 +76,9 @@ def main():
 
     print('Operation complete!')
     if lockfile:
-        print(f'Now run `poetry-lock --no-update` from {basepath}')
+        print(f'Now run `poetry lock --no-update` from {basepath}')
     else:
-        print(f'Now run `poetry-lock` from {basepath}')
+        print(f'Now run `poetry lock` from {basepath}')
 
 
 def determine_filepath(basepath: Path, filenames: List[str]) -> Path:
@@ -89,9 +94,13 @@ def import_setup(setupfile, outfile):
     with working_directory(setupfile.parent.absolute()):
         distribution: Distribution = run_setup(setupfile.name, stop_after='config')
         meta = distribution.metadata
+        version = str(meta.version)
+        if not re.match(r"\d+\.\d+\.\d+", version):
+            print(f'Invalid version format "{version}". Defaulting to "0.0.0"')
+            version = '0.0.0'
         outfile.writeline('[tool.poetry]')
         outfile.writeline(f'name = "{meta.name}"')
-        outfile.writeline(f'version = "{meta.version}"')
+        outfile.writeline(f'version = "{version}"')
         outfile.writeline(f'description = "{meta.description}"')
         outfile.writeline(f'repository = "{meta.url}"')
         email = meta.author_email or 'none@none.none'

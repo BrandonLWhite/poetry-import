@@ -17,6 +17,7 @@ poetry-import will recognize the following files as top-level dependency files:
 ## Dev Dependency Files
 poetry-import will recognize the following files as top-level development dependency files:
 - dev-requirements.in
+- test_requirements.in
 - test-requirements.txt
 - test_requirements.txt
 
@@ -31,9 +32,9 @@ Use [pipx](https://github.com/pypa/pipx) to install.
 `poetry-import <path-to-project>`
 
 If all goes well, follow-up instructions will be output like:
-> Now run `poetry-lock --no-update` from .
+> Now run `poetry lock --no-update` from .
 or
-> Now run `poetry-lock` from .
+> Now run `poetry lock` from .
 
 depending on if a lockfile was detected.
 
