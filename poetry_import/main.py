@@ -60,7 +60,9 @@ def main():
 
         if setupfile.exists():
             import_setup(setupfile, outfile)
-            outfile.writeline()
+        else:
+            write_boilerplate_tool_poetry_section(outfile)
+        outfile.writeline()
 
         if private_repo:
             import_private_repo(outfile, private_repo)
@@ -105,6 +107,15 @@ def import_setup(setupfile, outfile):
         outfile.writeline(f'repository = "{meta.url}"')
         email = meta.author_email or 'none@none.none'
         outfile.writeline(f'authors = ["{meta.author} <{email}>"]')
+
+
+def write_boilerplate_tool_poetry_section(outfile):
+    print(f'Generating boilerplate [tool.poetry] section. Be sure to fill in suitable values!')
+    outfile.writeline('[tool.poetry]')
+    outfile.writeline(f'name = "TODO-ADD-NAME"')
+    outfile.writeline(f'version = "0.0.0"')
+    outfile.writeline(f'description = "TODO-ADD-DESCRIPTION"')
+    outfile.writeline(f'authors = ["none@none.none"]')
 
 
 def import_private_repo(outfile, repository):
