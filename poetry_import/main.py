@@ -40,6 +40,7 @@ def main():
     devdepfile = determine_filepath(basepath, [
         'dev-requirements.in',
         'test_requirements.in',
+        'test-requirements.in',
         'test-requirements.txt',
         'test_requirements.txt'])
     setupfile = basepath / 'setup.py'
