@@ -36,7 +36,10 @@ def main():
     args = parser.parse_args()
 
     basepath = Path(args.input_path)
-    depfile = basepath / 'requirements.in'
+    depfile = determine_filepath(basepath, [
+        'requirements.in',
+        'requirements-to-freeze.txt'
+    ])
     devdepfile = determine_filepath(basepath, [
         'dev-requirements.in',
         'test_requirements.in',
