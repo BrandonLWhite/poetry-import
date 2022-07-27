@@ -12,12 +12,14 @@ ships with the exact same pinned/locked dependencies as before.
 ## Release Dependency Files
 poetry-import will recognize the following files as top-level dependency files:
 - requirements.in
+- requirements-to-freeze.txt
 - requirements.txt (if no requirements.in file exists)
 
 ## Dev Dependency Files
 poetry-import will recognize the following files as top-level development dependency files:
 - dev-requirements.in
 - test_requirements.in
+- test-requirements.in
 - test-requirements.txt
 - test_requirements.txt
 
