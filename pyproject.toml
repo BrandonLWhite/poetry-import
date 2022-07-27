@@ -3,6 +3,10 @@ name = "poetry-import"
 version = "0.1.0"
 description = "CLI utility that helps you migrate from Python pip requirements to Poetry pyproject.toml + poetry.lock."
 authors = ["BrandonLWhite <brandonlwhite@gmail.com>"]
+repository = "https://github.com/BrandonLWhite/poetry-import"
+homepage = "https://github.com/BrandonLWhite/poetry-import"
+readme = "README.md"
+license = "MIT"
 
 [tool.poetry.scripts]
 poetry-import = "poetry_import.main:main"

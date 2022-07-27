@@ -33,7 +33,9 @@ Use [pipx](https://github.com/pypa/pipx) to install.
 
 If all goes well, follow-up instructions will be output like:
 > Now run `poetry lock --no-update` from .
+
 or
+
 > Now run `poetry lock` from .
 
 depending on if a lockfile was detected.
